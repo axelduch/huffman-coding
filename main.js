@@ -3,7 +3,7 @@
 
     function init () {
         initDOMInteractions();
-        computeHuffman();
+        console.log(computeHuffman());
     }
 
 
@@ -19,8 +19,6 @@
 
         var tree = buildHuffmanTree(str);
 
-        console.log(tree);
-
         return encode(tree);
     }
 
@@ -30,8 +28,7 @@
 
         rawStringInput.addEventListener('keydown', function () {
             var str = rawStringInput.value;
-            computeHuffman(str);
-
+            console.log(computeHuffman(str));
         });
     }
 
@@ -58,6 +55,7 @@
                 };
 
                 nodes.push(parentNode);
+                nodes.sort(compareFrequencies);
             }
         }
 
@@ -80,54 +78,77 @@
 
 
     function encode (tree) {
+        var charCodes = buildCharCodes(tree.head);
+        var charSize = computeCharSize(charCodes);
         var str = tree.str;
-        var charCodes = {};
+
+        var byteArray = new Uint8Array(str.length);
 
         for (var i = 0; i < str.length; i++) {
-            var char = str.charAt(i);
-            var frequency = correspondingFrequency(char, tree.frequencies);
+            byteArray[i] = findCharCode(charCodes, str.charAt(i));
+        }
 
-            if (!(char in charCodes)) {
-                charCodes[char] = computeCharCode(frequency, tree.head);
+        return unpack(byteArray, charSize);
+    }
+
+
+    function unpack (byteArray, charSize) {
+        // @TODO implement
+    }
+
+
+    function findCharCode (charCodes, char) {
+        for (var key in charCodes) {
+            if (charCodes[key] === char) {
+                return key | 0;
             }
         }
     }
 
 
-    function computeCharCode (frequency, tree) {
-        var node = tree;
-        var path = 0;
+    function computeCharSize(charCodes) {
+        var max = 0;
 
-        while (true) {
-            console.log(frequency, node.count);
-            var left = node.left;
-            var right = node.right;
+        for (var key in charCodes) {
+            var num = key | 0;
 
-            if (left && left.count === frequency.count) {
-                console.log('left');
-                node = node.left;
-                path = extendPath(path, 1);
-                break;
-            } else if (right && right.count === frequency.count) {
-                console.log('right');
-                node = node.right;
-                path = extendPath(path, 0);
-                break;
+            if (num > max) {
+                max = num;
+            }
+        }
+
+        return max.toString(2).length;
+    }
+
+
+    function buildCharCodes (head, path, charCodes) {
+        charCodes = charCodes || {};
+        path = path | 0;
+        var leftPath;
+        var rightPath;
+
+        if (head.left) {
+            leftPath = extendPath(path, 0);
+
+            if (head.left.char) {
+                charCodes[leftPath] = head.left.char;
             } else {
-                var nextNodeCount = Math.max(left.count, right.count);
-                node = (node.left.count === nextNodeCount) ? node.left : node.right;
-                if (node === node.right) {
-                    console.log('right');
-                } else {
-                    console.log('left');
-                }
+                buildCharCodes(head.left, leftPath, charCodes);
+            }
+        }
+
+        if (head.right) {
+            rightPath = extendPath(path, 1);
+
+            if (head.right.char) {
+                charCodes[rightPath] = head.right.char;
+            } else {
+                buildCharCodes(head.right, rightPath, charCodes);
             }
 
         }
 
-        console.log(path, path.toString(2));
-
-        return path;
+        return charCodes;
     }
 
 
@@ -136,7 +157,7 @@
         if (direction) {
             path = (path << 1) | 1;
         } else {
-            path = ((path << 1) || 1) | 0;
+            path = (path << 1) || 1;
         }
 
         return path;
