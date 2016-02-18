@@ -129,6 +129,9 @@
 
 
     function buildCharCodes (head, path, charCodes) {
+        if (!head) {
+            return;
+        }
 
         charCodes = charCodes || {};
         path = path || '';
@@ -140,26 +143,8 @@
             return charCodes;
         }
 
-        if (head.left) {
-            leftPath = extendPath(path, 0);
-
-            if (head.left.char) {
-                charCodes[leftPath] = head.left.char;
-            } else {
-                buildCharCodes(head.left, leftPath, charCodes);
-            }
-        }
-
-        if (head.right) {
-            rightPath = extendPath(path, 1);
-
-            if (head.right.char) {
-                charCodes[rightPath] = head.right.char;
-            } else {
-                buildCharCodes(head.right, rightPath, charCodes);
-            }
-
-        }
+        buildCharCodes(head.left, extendPath(path, 0), charCodes);
+        buildCharCodes(head.right, extendPath(path, 1), charCodes);
 
         return charCodes;
     }
