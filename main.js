@@ -14,8 +14,7 @@
 
     function computeHuffman (str) {
         str = str || 'go go gophers';
-        console.log('computing huffman', str);
-        console.log(buildIndex(str));
+        console.log('computing huffman for:', str);
 
         var tree = buildHuffmanTree(str);
 
@@ -26,7 +25,7 @@
     function registerUserInput () {
         var rawStringInput = document.getElementById('rawString');
 
-        rawStringInput.addEventListener('keydown', function () {
+        rawStringInput.addEventListener('keyup', function () {
             var str = rawStringInput.value;
             console.log(computeHuffman(str));
         });
@@ -79,21 +78,30 @@
 
     function encode (tree) {
         var charCodes = buildCharCodes(tree.head);
-        var charSize = computeCharSize(charCodes);
         var str = tree.str;
 
-        var byteArray = new Uint8Array(str.length);
+        var output = '';
 
         for (var i = 0; i < str.length; i++) {
-            byteArray[i] = findCharCode(charCodes, str.charAt(i));
+            var charCode = findCharCode(charCodes, str.charAt(i));
+            console.log(charCode);
+            output += charCode.toString(2);
         }
 
-        return unpack(byteArray, charSize);
+        // debugging purpose
+        summarize(str, output, computeCharSize(charCodes));
+
+        return output;
     }
 
 
-    function unpack (byteArray, charSize) {
-        // @TODO implement
+    function summarize (input, output, charSize) {
+        var binaryOutputLength = Math.ceil(output.length / charSize);
+        console.log('input string length', input.length);
+        console.log('output string length', output.length);
+        console.log('binary char size', charSize);
+        console.log('output binary string length', binaryOutputLength);
+        console.log(100 - ((input.length) / (output.length)) * 100, '% compression rate');
     }
 
 
@@ -122,10 +130,16 @@
 
 
     function buildCharCodes (head, path, charCodes) {
+
         charCodes = charCodes || {};
-        path = path | 0;
+        path = path || '';
         var leftPath;
         var rightPath;
+
+        if (head.char) {
+            charCodes[path] = head.char;
+            return charCodes;
+        }
 
         if (head.left) {
             leftPath = extendPath(path, 0);
@@ -153,14 +167,7 @@
 
 
     function extendPath(path, direction) {
-        // 1 means right
-        if (direction) {
-            path = (path << 1) | 1;
-        } else {
-            path = (path << 1) || 1;
-        }
-
-        return path;
+        return path + direction;
     }
 
     function correspondingFrequency(char, frequencies) {
