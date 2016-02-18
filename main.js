@@ -99,9 +99,8 @@
         var binaryOutputLength = Math.ceil(output.length / charSize);
         console.log('input string length', input.length);
         console.log('output string length', output.length);
-        console.log('binary char size', charSize);
-        console.log('output binary string length', binaryOutputLength);
-        console.log(100 - ((input.length) / (output.length)) * 100, '% compression rate');
+        console.log('binary char code bit count', charSize);
+        console.log('output bytes count', binaryOutputLength);
     }
 
 
