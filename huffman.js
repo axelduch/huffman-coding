@@ -1,34 +1,21 @@
 (function () {
+    Huffman = {
+        create: computeHuffman,
+        toBlob: toBlob
+    };
 
 
-    function init () {
-        initDOMInteractions();
-        console.log(computeHuffman());
-    }
-
-
-    function initDOMInteractions () {
-        registerUserInput();
+    function toBlob (binaryOutput) {
+        return new Blob([binaryOutput], {type: 'application/octet-stream'});
     }
 
 
     function computeHuffman (str) {
-        str = str || 'go go gophers';
         console.log('computing huffman for:', str);
 
         var tree = buildHuffmanTree(str);
 
         return encode(tree);
-    }
-
-
-    function registerUserInput () {
-        var rawStringInput = document.getElementById('rawString');
-
-        rawStringInput.addEventListener('keyup', function () {
-            var str = rawStringInput.value;
-            console.log(computeHuffman(str));
-        });
     }
 
 
@@ -76,22 +63,36 @@
     }
 
 
+    // @TODO this is definitely squishy
+    // - Improve output
+    // - I think binary packing is broken 
     function encode (tree) {
         var charCodes = buildCharCodes(tree.head);
         var str = tree.str;
 
-        var output = '';
+        var strOutput = '';
+        var i;
 
-        for (var i = 0; i < str.length; i++) {
+        for (i = 0; i < str.length; i++) {
             var charCode = findCharCode(charCodes, str.charAt(i));
-            console.log(charCode);
-            output += charCode.toString(2);
+            strOutput += charCode.toString(2);
+        }
+
+        var charSize = computeCharSize(charCodes);
+        var binaryOutputLength = Math.ceil(strOutput.length / charSize);
+        var binaryOutput = new Uint32Array(binaryOutputLength);
+
+        for (i = 0; i < binaryOutputLength; i++) {
+            binaryOutput[i] = parseInt(strOutput.substr(i * charSize, i * charSize + charSize), 2);
         }
 
         // debugging purpose
-        summarize(str, output, computeCharSize(charCodes));
+        summarize(str, strOutput, computeCharSize(charCodes));
 
-        return output;
+        return {
+            output: binaryOutput,
+            charSize: charSize
+        };
     }
 
 
@@ -206,7 +207,4 @@
         return b.count - a.count;
     }
 
-
-    // ENTRY POINT
-    window.addEventListener('load', init);
 }());
