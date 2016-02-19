@@ -23,6 +23,8 @@
 
     // @TODO implement
     function debugTree(tree) {
+        return; // until it's implemented
+
         var binaryOutput = tree.binaryOutput;
         var charSize = tree.charSize;
         var str = '';
