@@ -62,8 +62,8 @@
 
         downloadButton.addEventListener('click', function () {
             var str = fetchUserInput();
-            console.log(Huffman.create(str));
-            download(Huffman.create(str));
+            var huffman = Huffman.create(str);
+            download(huffman.binaryOutput);
         });
     }
 
