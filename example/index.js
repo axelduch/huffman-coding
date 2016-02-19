@@ -9,9 +9,7 @@
         var str = fetchUserInput();
         var huffman = Huffman.create(str);
 
-        debugTree(huffman);
-
-        console.log(binaryOutput);
+        console.log(huffman);
     }
 
 
