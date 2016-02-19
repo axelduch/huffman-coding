@@ -23,7 +23,7 @@
     function debugTree(tree) {
         return; // until it's implemented
 
-        var binaryOutput = tree.binaryOutput;
+        var binaryOutput = tree.output;
         var charSize = tree.charSize;
         var str = '';
 
@@ -63,7 +63,7 @@
         downloadButton.addEventListener('click', function () {
             var str = fetchUserInput();
             var huffman = Huffman.create(str);
-            download(huffman.binaryOutput);
+            download(huffman.output);
         });
     }
 
